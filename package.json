@@ -4,6 +4,7 @@
   "description": "A Simple Twitter Search Feed",
   "scripts": {
     "start": "webpack-dev-server --mode development",
+    "server": "node ./src/server/index.js",
     "build": "webpack --mode production"
   },
   "author": "srinath",

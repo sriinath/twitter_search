@@ -1,23 +1,8 @@
-var twit = require('twitter-node-client').Twitter
-// var twit = new Twitter()
-import { config } from '../../../config'
-const {
-    CONSUMER_KEY,
-    CONSUMER_SECRET,
-    ACCESS_TOKEN,
-    ACCESS_TOKEN_SECRET
-} = config
-
 const TwitterGetAction = (dispatch) => {
-    const cbk = data => console.log(data)
-    const TwitFeed = new twit({
-        "consumerKey": CONSUMER_KEY,
-    	"consumerSecret": CONSUMER_SECRET,
-    	"accessToken": ACCESS_TOKEN,
-        "accessTokenSecret": ACCESS_TOKEN_SECRET,
-        "callBackUrl": ''
-    })
-    TwitFeed.getSearch({ q: 'tweet' }, cbk, cbk)
+    fetch('http://localhost:3000/tweets/search?q=tweet')
+    .then(data => data.json())
+    .then(data => console.log(data))
+    .catch(err => console.log(err))
     return dispatch(TwitterSetAction({success: true}))    
 }
 const TwitterSetAction = action => {
