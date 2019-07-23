@@ -9,21 +9,27 @@ class TwitterFeed extends React.PureComponent {
     constructor(props) {
         super(props)
     }
+    componentDidMount() {
+        this.props.getSearchData()
+    }
     render() {
         const {
             children,
             data
         } = this.props
-        console.log(data)
-        return <Provider value={data || {}}>
+        return <Provider value={data && data.statuses || []}>
             {children}
         </Provider>
     }
 }
 
 const mapStateToProps = state => ({
-    data: state.ChatMessageListReducer
+    data: state.TwitterFeedReducer
 })
-const mapDispatchToProps = dispatch => TwitterGetAction(dispatch)
+const mapDispatchToProps = dispatch => {
+    return {
+        getSearchData: () => dispatch(TwitterGetAction())
+    }
+}
 export default connect(mapStateToProps, mapDispatchToProps)(TwitterFeed)
 export { Consumer as TwitterFeedConsumer }

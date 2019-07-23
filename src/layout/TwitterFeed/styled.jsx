@@ -6,6 +6,7 @@ import {
 } from '../../component'
 
 const TwitterFeedWrapper = styled.div`
+    margin-top: 60px;
 `
 const TwitterItemWrapper = styled.div`
     padding: 10px;

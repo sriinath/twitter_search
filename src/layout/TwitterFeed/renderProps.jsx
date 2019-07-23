@@ -15,83 +15,75 @@ const TwitterItem = props => {
     const {
         userImage
     } = props
-
+    console.log(props)
     return <TwitterItemWrapper>
-        {renderUserImage(userImage)}
+        {/* {renderUserImage(userImage)*/}
         {renderTwitterContent(props)}
     </TwitterItemWrapper>
 }
 const renderTwitterContent = props => {
     const {
-        userLink,
-        userName,
-        tweetTime,
-        tweetText,
-        twitterName,
-        hearts,
-        comments,
-        retweets
+        user,
+        text,
+        retweet_count,
+        favorite_count,
     } = props
     return <>
-        {renderTweetHeader({ userLink, userName, tweetTime, twitterName })}
-        {renderTweetBody({ tweetText })}
-        {renderTweetFooter({ comments, hearts, retweets })}
+        {renderTweetHeader(user)}
+        {renderTweetBody(text)}
+        {renderTweetFooter({ favorite_count, retweet_count })}
     </>
 }
 const renderTweetHeader = props => {
     const {
-        userName,
-        twitterName,
-        tweetTime
+        name,
+        screen_name
     } = props
 
     return <TwitterHeadWrapper>
         <Text
-            text={userName}
+            text={name}
             isHeading={false}
             isTitle={true}
         />
         <Text
-            text={twitterName}
+            text={screen_name}
             isHeading={false}
         />
-        <Text
+        {/* <Text
             text={tweetTime}
             isHeading={false}
-        />
+        /> */}
     </TwitterHeadWrapper>
 }
-const renderTweetBody = props => {
-    const {
-        tweetText
-    } = props
+const renderTweetBody = text => {
     return <TwitterBodyWrapper>
         <Text
-            text={tweetText}
+            text={text}
             isHeading={false}
         />
     </TwitterBodyWrapper> 
 }
 const renderTweetFooter = props => {
     const {
-        retweets,
-        hearts,
-        comments
+        favorite_count,
+        retweet_count,
+        comment_count
     } = props
 
     return <TwitterFooterWrapper>
         <IconWithText
-            text={retweets.toString()}
+            text={comment_count ? comment_count.toString() : '0'}
             isHeading={false}
             iconPosition='left'
         />
         <IconWithText
-            text={hearts.toString()}
+            text={retweet_count ? retweet_count.toString() : '0'}
             isHeading={false}
             iconPosition='left'
         />
         <IconWithText
-            text={comments.toString()}
+            text={favorite_count ? favorite_count.toString() : '0'}
             isHeading={false}
             iconPosition='left'
         />

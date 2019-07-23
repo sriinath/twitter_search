@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const app = express()
 const bodyParser = require('body-parser')
+const OAuth = require('oauth').OAuth
 
 const config = {
     CONSUMER_KEY: '0XG5299e6oSESyHvLGIMGmwW3',
@@ -26,7 +27,6 @@ app.use(function(req, res, next) {
     next();
 });
 
-const OAuth = require('oauth').OAuth
 app.get('/tweets/search', (req, res) => {
     const {
         CONSUMER_KEY,
@@ -59,6 +59,60 @@ app.get('/tweets/search', (req, res) => {
                     res.send([])
                 }
             })    
+        }
+        else {
+            res.send([])
+        }
+    }
+    else {
+        res.send([])
+    }
+})
+app.get('/tweets/stream', (req, res) => {
+    const {
+        CONSUMER_KEY,
+        CONSUMER_SECRET,
+        ACCESS_TOKEN,
+        ACCESS_TOKEN_SECRET
+    } = config
+    const { query } = req
+    if(query) {
+        const { q } = query
+        if(q) {
+            let customHeaders = {
+                keepAlive: true
+            }
+            let oauth = new OAuth(
+                'https://api.twitter.com/oauth/request_token',
+                'https://api.twitter.com/oauth/access_token',
+                CONSUMER_KEY,
+                CONSUMER_SECRET,
+                '1.0',
+                null,
+                'HMAC-SHA1',
+                1,
+                customHeaders
+            );
+            let request = oauth.post('https://api.twitter.com/1.1/statuses/filter.json?track=tweet', ACCESS_TOKEN, ACCESS_TOKEN_SECRET) 
+            request.on('response', response => {
+                console.log(response)
+                request.on('data', chunk => console.log(chunk))
+                request.on('end', () => console.log('req ended'))
+            })
+            // function(err, result, resp) {
+            //     if(!err) {
+            //         console.log(resp)
+            //         if(resp && resp.statusCode === 200) {
+            //             result.on('data' => console.log(chunk))
+            //         }
+            //         else 
+            //             res.send([])   
+            //     }
+            //     else {
+            //         console.log(err)
+            //         res.send([])
+            //     }
+            // })    
         }
         else {
             res.send([])

@@ -1,9 +1,12 @@
-const TwitterGetAction = (dispatch) => {
-    fetch('http://localhost:3000/tweets/search?q=tweet')
-    .then(data => data.json())
-    .then(data => console.log(data))
-    .catch(err => console.log(err))
-    return dispatch(TwitterSetAction({success: true}))    
+const TwitterGetAction = () => {
+    return dispatch => {
+        fetch('http://localhost:3000/tweets/search?q=tweet')
+        .then(data => data.json())
+        .then(data => {
+            dispatch(TwitterSetAction(data))
+        })
+        .catch(err => console.log(err))
+    }
 }
 const TwitterSetAction = action => {
     return {
