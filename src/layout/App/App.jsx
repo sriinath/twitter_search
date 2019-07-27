@@ -1,15 +1,17 @@
 import * as React from 'react'
 import { TwitterFeed } from '../TwitterFeed'
 import { AppWrapper } from './styled.jsx'
-import { TwitterFeedContainer } from '../../container'
+import { TwitterFeedContainer, SocketProvider } from '../../container'
 import { Header } from '../Header'
 
 const App = props => {
     return <AppWrapper>
         <Header />
-        <TwitterFeedContainer>
-            <TwitterFeed />
-        </TwitterFeedContainer>
+        <SocketProvider url='http://localhost:3000'>
+            <TwitterFeedContainer>
+                <TwitterFeed />
+            </TwitterFeedContainer>
+        </SocketProvider>
     </AppWrapper>
 }
 

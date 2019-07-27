@@ -1,6 +1,6 @@
-const TwitterGetAction = () => {
+const TwitterGetAction = (searchTerm) => {
     return dispatch => {
-        fetch('http://localhost:3000/tweets/search?q=tweet')
+        fetch(`http://localhost:3000/tweets/search?q=${searchTerm}`)
         .then(data => data.json())
         .then(data => {
             dispatch(TwitterSetAction(data))
@@ -14,8 +14,14 @@ const TwitterSetAction = action => {
         data: action
     }
 }
-
+const TwitterSetStream = action => {
+    return {
+        type: 'TwitterStream',
+        data: action
+    }
+}
 export {
     TwitterSetAction,
-    TwitterGetAction
+    TwitterGetAction,
+    TwitterSetStream,
 }

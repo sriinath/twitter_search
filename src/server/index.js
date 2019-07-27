@@ -3,6 +3,7 @@ const path = require('path')
 const app = express()
 const bodyParser = require('body-parser')
 const OAuth = require('oauth').OAuth
+const Socket = require('./socket')
 
 const config = {
     CONSUMER_KEY: '0XG5299e6oSESyHvLGIMGmwW3',
@@ -36,7 +37,7 @@ app.get('/tweets/search', (req, res) => {
     } = config
     const { query } = req
     if(query) {
-        const { q } = query
+        const { q, limit, offset } = query
         if(q) {
             let oauth = new OAuth(
                 'https://api.twitter.com/oauth/request_token',
@@ -47,7 +48,7 @@ app.get('/tweets/search', (req, res) => {
                 null,
                 'HMAC-SHA1'
             );
-            oauth.get('https://api.twitter.com/1.1/search/tweets.json?q=tweet&count=10', ACCESS_TOKEN, ACCESS_TOKEN_SECRET, function(err, result, resp) {
+            oauth.get(`https://api.twitter.com/1.1/search/tweets.json?q=${q}&count=${limit || 10}`, ACCESS_TOKEN, ACCESS_TOKEN_SECRET, function(err, result, resp) {
                 if(!err) {
                     if(resp && resp.statusCode === 200)
                         res.send(result)
@@ -68,61 +69,93 @@ app.get('/tweets/search', (req, res) => {
         res.send([])
     }
 })
-app.get('/tweets/stream', (req, res) => {
-    const {
-        CONSUMER_KEY,
-        CONSUMER_SECRET,
-        ACCESS_TOKEN,
-        ACCESS_TOKEN_SECRET
-    } = config
-    const { query } = req
-    if(query) {
-        const { q } = query
-        if(q) {
-            let customHeaders = {
-                keepAlive: true
-            }
-            let oauth = new OAuth(
-                'https://api.twitter.com/oauth/request_token',
-                'https://api.twitter.com/oauth/access_token',
-                CONSUMER_KEY,
-                CONSUMER_SECRET,
-                '1.0',
-                null,
-                'HMAC-SHA1',
-                1,
-                customHeaders
-            );
-            let request = oauth.post('https://api.twitter.com/1.1/statuses/filter.json?track=tweet', ACCESS_TOKEN, ACCESS_TOKEN_SECRET) 
-            request.on('response', response => {
-                console.log(response)
-                request.on('data', chunk => console.log(chunk))
-                request.on('end', () => console.log('req ended'))
-            })
-            // function(err, result, resp) {
-            //     if(!err) {
-            //         console.log(resp)
-            //         if(resp && resp.statusCode === 200) {
-            //             result.on('data' => console.log(chunk))
-            //         }
-            //         else 
-            //             res.send([])   
-            //     }
-            //     else {
-            //         console.log(err)
-            //         res.send([])
-            //     }
-            // })    
-        }
-        else {
-            res.send([])
-        }
-    }
-    else {
-        res.send([])
-    }
-})
+// app.get('/tweets/stream', (req, res) => {
+//     const {
+//         CONSUMER_KEY,
+//         CONSUMER_SECRET,
+//         ACCESS_TOKEN,
+//         ACCESS_TOKEN_SECRET
+//     } = config
+//     const { query } = req
+//     if(query) {
+//         const { q } = query
+//         if(q) {
+//             let oauth = new OAuth(
+//                 'https://api.twitter.com/oauth/request_token',
+//                 'https://api.twitter.com/oauth/access_token',
+//                 CONSUMER_KEY,
+//                 CONSUMER_SECRET,
+//                 '1.0',
+//                 null,
+//                 'HMAC-SHA1',
+//                 1
+//             );
+//             const header = oauth.authHeader(
+//                 'https://stream.twitter.com/1.1/statuses/filter.json?track=verithanam',
+//                 ACCESS_TOKEN,
+//                 ACCESS_TOKEN_SECRET,
+//                 'get'
+//             )
+//             const reqContent = {
+//                 uri: 'https://stream.twitter.com/1.1/statuses/filter.json?track=verithanam',
+//                 method: 'GET',
+//                 headers: {
+//                     Authorization: header,
+//                     'content-type': 'application/json'
+//                 }
+//             }
+//             const req = request(reqContent)
+//             req.on('response', response => {
+//                 if(response && response.statusCode === 200) {
+//                     req.on('data', chunk => {
+//                         data += chunk
+//                         console.log(chunk.toString())
+//                     })
+//                     req.on('end', () => {
+//                         console.log('end of response')
+//                     })
+//                 }
+//                 else if(response && response.statusCode === 401) {
+//                     req.destroy()
+//                     res.send({
+//                         message: 'You are unathorized to access the API',
+//                         statusCode: 401
+//                     })
+//                 }
+//                 else if(response && response.statusCode === 500) {
+//                     req.destroy()
+//                     res.send({
+//                         message: 'There was something wrong in the server',
+//                         statusCode: 500
+//                     })
+//                 }
+//                 else if(response && response.statusCode && response.statusCode === 420) {
+//                     req.destroy()
+//                     setTimeout(() => {
+                        
+//                     }, 500)
+//                 }
+//                 else if(response && response.statusCode && response.statusCode > 400 && response.statusCode < 500) {
+//                     req.destroy()
+//                     res.send({
+//                         message: 'There was something woring in server'
+//                     })
+//                 }
+//                 else {
+//                     console.log('Something went wrong')
+//                 }
+//             })
+//         }
+//         else {
+//             res.send([])
+//         }
+//     }
+//     else {
+//         res.send([])
+//     }
+// })
 
-app.listen({ port: process.env.PORT || 3000 }, function() {
+const server = app.listen({ port: process.env.PORT || 3000 }, function() {
     console.log(`🚀 Express Serverstarted`);
 })
+new Socket(server).init()

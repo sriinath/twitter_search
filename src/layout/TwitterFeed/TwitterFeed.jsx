@@ -7,11 +7,13 @@ import { TwitterFeedConsumer } from '../../container'
 const TwitterFeed = props => {
     return <TwitterFeedWrapper>
         <TwitterFeedConsumer>
-            {context => <ListItem
-                    list={context || []}
+            {context => {
+                const listData = context.statuses || []
+                return <ListItem
+                    list={listData}
                     Item={TwitterItem}
                 />
-            }
+            }}
         </TwitterFeedConsumer>
     </TwitterFeedWrapper>
 }

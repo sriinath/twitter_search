@@ -15,7 +15,6 @@ const TwitterItem = props => {
     const {
         userImage
     } = props
-    console.log(props)
     return <TwitterItemWrapper>
         {/* {renderUserImage(userImage)*/}
         {renderTwitterContent(props)}
