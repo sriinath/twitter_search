@@ -1,6 +1,7 @@
+const RestAPIDomain = location.origin || 'http://localhost:3000'
 const TwitterGetAction = (searchTerm) => {
     return dispatch => {
-        fetch(`http://localhost:3000/tweets/search?q=${searchTerm}`)
+        fetch(`${RestAPIDomain}/tweets/search?q=${searchTerm}`)
         .then(data => data.json())
         .then(data => {
             dispatch(TwitterSetAction(data))
@@ -14,14 +15,14 @@ const TwitterSetAction = action => {
         data: action
     }
 }
-const TwitterSetStream = action => {
+const TwitterUpdateFeedStream = action => {
     return {
-        type: 'TwitterStream',
+        type: 'TwitterStreamUpdate',
         data: action
     }
 }
 export {
     TwitterSetAction,
     TwitterGetAction,
-    TwitterSetStream,
+    TwitterUpdateFeedStream,
 }

@@ -25,6 +25,7 @@ class Socket {
             this.searchTerm =  searchTerm
             this.startTwitterStream(socket)
         })
+        socket.on('disconnect', () => this.request.destroy())
     }
     setAuthHeader() {
         const {
@@ -53,7 +54,7 @@ class Socket {
     startTwitterStream(socket) {
         const header = this.setAuthHeader()
         const reqContent = {
-            uri: 'https://stream.twitter.com/1.1/statuses/filter.json?track=verithanam',
+            uri: `https://stream.twitter.com/1.1/statuses/filter.json?track=${this.searchTerm}`,
             method: 'GET',
             headers: {
                 Authorization: header,

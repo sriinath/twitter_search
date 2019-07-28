@@ -5,7 +5,7 @@ module.exports = {
     entry: "./src/index.jsx",
     output: {
         filename: "bundle.js",
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist/build')
     },
     resolve: {
         extensions: [ '.js', 'jsx' ]
@@ -21,7 +21,16 @@ module.exports = {
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2|otf)$/,
-                loader: 'file-loader'
+                use: {
+                    loader: 'file-loader',
+                    options: {
+                      // Limit at 50k. Above that it emits separate files
+                      limit: 50000,
+                      mimetype: "application/font-woff",
+                      // Output below fonts directory
+                      name: "./fonts/[name].[ext]"
+                    }
+                }
             }
         ]
     },

@@ -5,10 +5,11 @@ import { TwitterFeedContainer, SocketProvider } from '../../container'
 import { Header } from '../Header'
 
 const App = props => {
+    let socketUrl = location.origin || 'http://localhost:3000'
     return <AppWrapper>
-        <Header />
-        <SocketProvider url='http://localhost:3000'>
+        <SocketProvider url={socketUrl}>
             <TwitterFeedContainer>
+                <Header />
                 <TwitterFeed />
             </TwitterFeedContainer>
         </SocketProvider>

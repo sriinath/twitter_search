@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { TwitterGetAction } from '../../store'
+import { TwitterGetAction, TwitterUpdateFeedStream } from '../../store'
 import { SocketConsumer } from '../Socket.jsx'
 
 const TwitterFeedContext = React.createContext({})
@@ -10,17 +10,37 @@ class TwitterFeed extends React.PureComponent {
     constructor(props) {
         super(props)
         this.state = {
-            searchTerm: 'verithanam',
-            bindStreamEvents: false
+            searchTerm: this.props.searchTerm || '',
+            bindStreamEvents: false,
+            latestTweets: []
         }
     }
     componentDidMount() {
-        const { searchTerm } = this.state
-        this.props.getSearchData(searchTerm)
-        this.setState({ bindStreamEvents: true })
+        // const { searchTerm } = this.state
+        // this.props.getSearchData(searchTerm)
+        // this.setState({ bindStreamEvents: true })
     }
     updateSearchTerm(searchTerm) {
-        this.setState({ searchTerm })
+        const search = searchTerm && searchTerm.trim() || ''
+        if(search.length) {
+            this.socket.emit('disconnect')
+            this.props.updateSearchData(null)
+            this.props.getSearchData(search)
+            this.setState({ 
+                searchTerm: search,
+                bindStreamEvents: true,
+                latestTweets: []
+            })
+        }
+    }
+    showNewTweets() {
+        let latestTweetsArr = this.state.latestTweets || []
+        if(latestTweetsArr && Array.isArray(latestTweetsArr) && latestTweetsArr.length) {
+            let tweetsArr = this.props.data && this.props.data.statuses || []
+            let updatedTweetsArr = [...latestTweetsArr, ...tweetsArr]
+            this.props.updateSearchData(updatedTweetsArr)
+        }
+        this.setState({ latestTweets: [] })
     }
     twitterStreamEvents() {
         const {
@@ -28,7 +48,12 @@ class TwitterFeed extends React.PureComponent {
         } = this.state
         if(this.socket) {
             this.socket.emit && this.socket.emit('FeedSearch', searchTerm)
-            this.socket.on && this.socket.on('data', data => console.log(JSON.parse(data)))
+            this.socket.on && this.socket.on('data', data => {
+                let newTweet = JSON.parse(data)
+                let newTweetArr = [...this.state.latestTweets] || []
+                newTweetArr.unshift(newTweet)
+                this.setState({ latestTweets: newTweetArr })
+            })
         }
     }
     render() {
@@ -38,7 +63,9 @@ class TwitterFeed extends React.PureComponent {
         } = this.props
         const providerValue = {
             statuses: data.statuses || [],
-            updateSearchTerm: this.updateSearchTerm
+            newTweetCount: this.state.latestTweets && this.state.latestTweets.length || 0,
+            updateSearchTerm: (searchTerm) => this.updateSearchTerm(searchTerm),
+            showNewTweets: () => this.showNewTweets()
         }
         return <SocketConsumer>
             {socket => {
@@ -60,8 +87,10 @@ const mapStateToProps = state => ({
 })
 const mapDispatchToProps = dispatch => {
     return {
-        getSearchData: (searchTerm) => dispatch(TwitterGetAction(searchTerm))
+        getSearchData: searchTerm => dispatch(TwitterGetAction(searchTerm)),
+        updateSearchData: data => dispatch(TwitterUpdateFeedStream(data))
     }
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(TwitterFeed)
 export { Consumer as TwitterFeedConsumer }
